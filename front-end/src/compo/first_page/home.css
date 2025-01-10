@@ -3,7 +3,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(135deg, #340368, #6a0dad);
+    background: linear-gradient(135deg, #685e72, #2f2536);
     color: #fff;
     height: 100vh;
     font-family: "Arial", sans-serif;
@@ -28,6 +28,7 @@
   .text-section {
     flex: 1;
     padding: 20px;
+    margin-top: 6vh;
   }
   
   .text-section h2 {
@@ -45,7 +46,7 @@
   .text-section p {
     font-size: 1rem;
     line-height: 1.6;
-    margin-bottom: 20px;
+    margin: 1vh;
   }
   
   .get-started-button {
@@ -56,7 +57,9 @@
     border-radius: 25px;
     font-size: 1rem;
     cursor: pointer;
+
     transition: background 0.3s ease-in-out;
+    margin-bottom: 4vh;
   }
   
   .get-started-button:hover {
@@ -70,7 +73,7 @@
   }
   
   .chatbot-image {
-    width: 70%;
+    width: 80%;
     max-width: 400px;
     transform: translateZ(0);
     animation: float 3s ease-in-out infinite;
@@ -81,7 +84,7 @@
       transform: translateY(0);
     }
     50% {
-      transform: translateY(-10px);
+      transform: translateY(-15px);
     }
   }
   

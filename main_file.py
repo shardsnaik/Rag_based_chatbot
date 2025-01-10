@@ -15,7 +15,9 @@ from PyPDF2 import PdfReader
 from fastapi.middleware.cors import CORSMiddleware
 from langchain.chains import RetrievalQA
 from langchain_community.chat_models import ChatOpenAI
-from langchain_huggingface import HuggingFaceEndpoint   # Import the HuggingFaceEndpoint class
+from langchain_huggingface import HuggingFaceEndpoint
+
+# Load environment variables from .env file
 load_dotenv()
 
 # Initialize FastAPI app
@@ -25,17 +27,20 @@ app = FastAPI()
 pc = ps(api_key=os.getenv("Pinecone_api_key"))
 key = os.getenv("huggingface_api_key")
 
+# Define Pinecone index specifications
 spec = ServerlessSpec(cloud="aws", region="us-east-1")
 index_name = "multi-qa-index"
 
+# Create Pinecone index if it doesn't exist
 if index_name not in pc.list_indexes().names():
     pc.create_index(name=index_name, dimension=1536, metric="cosine", spec=spec)
 else:
     print(f"Index '{index_name}' already exists.")
 
+# Initialize Pinecone index
 index = pc.Index(index_name)
 
-# Add CORS middleware
+# Add CORS middleware to allow cross-origin requests
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -47,7 +52,7 @@ app.add_middleware(
 # Initialize Hugging Face embeddings using Mistral-7B-Instruct-v0.3 model
 embedding_model = OpenAIEmbeddings(model="text-embedding-ada-002")
 
-# Extract text from PDF
+# Function to extract text from PDF files
 def extract_text_from_pdfs(pdf_file):
     all_texts = []
     reader = PdfReader(pdf_file)
@@ -60,7 +65,7 @@ def extract_text_from_pdfs(pdf_file):
     texts = txt_splitter.split_text(text)
     return texts
 
-# Extract text from CSV
+# Function to extract text from CSV files
 def extract_text_from_csv(csv_file):
     df = pd.read_csv(BytesIO(csv_file))
     all_text = []
@@ -68,19 +73,32 @@ def extract_text_from_csv(csv_file):
         all_text.extend(df[col].astype(str).tolist())
     return all_text
 
-# Extract text from JSON
+# Function to extract text from JSON files
 def extract_text_from_json(json_file):
     data = json.loads(json_file)
-    return [entry["text"] for entry in data]
+    
+    def extract_text(data):
+        texts = []
+        if isinstance(data, dict):
+            for key, value in data.items():
+                texts.extend(extract_text(value))
+        elif isinstance(data, list):
+            for item in data:
+                texts.extend(extract_text(item))
+        else:
+            texts.append(str(data))
+        return texts
+    
+    return extract_text(data)
 
-
+# Function to extract text from TXT files
 def extract_text_from_txt(txt_file):
     text = txt_file.decode("utf-8")
     # Split large text into manageable chunks
     chunks = [text[i:i+1000] for i in range(0, len(text), 1000)]
     return chunks
 
-# Define the input model
+# Define the input model for query requests
 class QueryRequest(BaseModel):
     query: str
 
@@ -112,24 +130,19 @@ async def upload_file(file: UploadFile = File(...)):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
 
-## Initialize Pinecone retriever
-retriever = Pinecone( index=index, embedding=embedding_model.embed_query, text_key='text' ) 
-# Initialize the language model 
-llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0.7) 
-# Set up the RAG model using the retriever 
-rag_model = RetrievalQA.from_chain_type( llm=llm, retriever=retriever.as_retriever()) 
-# Call as_retriever() method )
+# Initialize Pinecone retriever
+retriever = Pinecone(index=index, embedding=embedding_model.embed_query, text_key='text')
 
+# Initialize the language model
+llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0.7)
 
-########################
-# GPT mistralai MODEL
-llm_model = HuggingFaceEndpoint(repo_id ='mistralai/Mistral-7B-Instruct-v0.3', max_length=128, temperature=.4, huggingfacehub_api_token=key)
+# Set up the RAG model using the retriever
+rag_model = RetrievalQA.from_chain_type(llm=llm, retriever=retriever.as_retriever())
 
+# Initialize Hugging Face endpoint for Mistral-7B-Instruct-v0.3 model
+llm_model = HuggingFaceEndpoint(repo_id='mistralai/Mistral-7B-Instruct-v0.3', max_length=128, temperature=0.4, huggingfacehub_api_token=key)
 
-
-###################################
 # Route to test basic connection
 @app.get('/')
 def homePage():
@@ -143,15 +156,12 @@ def qa_chatbot(req: QueryRequest):
         raise HTTPException(status_code=400, detail="Query failed")
     
     try:
-        # answer = llm.invoke(ques)
         answer = rag_model.run(ques)
         return {"query": ques, "answer": answer}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
-
-# chat bot without RAG just llm model
+# Chatbot without RAG, just using the LLM model
 @app.post('/llm_bot')
 def llm_bot(req: QueryRequest):
     questions = req.query
@@ -161,19 +171,14 @@ def llm_bot(req: QueryRequest):
     try:
         answer = llm_model.invoke(questions)
         return {"query": questions, "answer": answer}
-    
-    
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
-
-
 
 # CORS preflight handler
 @app.options("/chat")
 def options_handler():
     return JSONResponse(content={"message": "Options Request OK"}, status_code=200)
 
+# Run the FastAPI app
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)

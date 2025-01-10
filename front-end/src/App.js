@@ -1,10 +1,10 @@
 import './App.css';
-import Header from './compo/header/header';
+import First_page from '../src/compo/first_page/home';
 function App() {
   return (
-    <div className="App">
+    <div>
 
-        <Header />
+        <First_page />
     </div>
   );
 }

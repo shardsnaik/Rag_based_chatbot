@@ -1,26 +1,62 @@
-import React from "react";
-import "./Chatbot.css";
+import React, { useEffect, useState } from "react";
+import "./home.css";
+import robo from '../../images/33.png'
+import robo2 from '../../images/22.png'
+import { Link } from "react-router-dom";
+import {ToastContainer, toast, Bounce } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const ChatbotPage = () => {
+const [firtimg, secimg ] =useState([robo])
+
+useEffect(() =>{
+  const img_robo = [robo, robo2]
+  let indx = 0
+  const imginterval = setInterval(()=>{
+    indx = (indx + 1 ) % img_robo.length
+    secimg(img_robo[indx])
+  }, 120000) 
+  return () => clearInterval(imginterval)
+},[])
+
+const tostload =()=>{
+  toast.info('Currently Not Available', {
+    position: "top-center",
+    autoClose: 6000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "colored",
+    transition: Bounce,
+    } )
+}
   return (
     <div className="chatbot-container">
+      <ToastContainer/>
       <div className="chatbot-header">
-        <h1>Company Logo</h1>
+        <h1>CONVERSATIONAL AI </h1>
       </div>
       <div className="chatbot-content">
         <div className="text-section">
           <h2>CHATBOT</h2>
-          <h3>technology</h3>
+          {/* <h3>technology</h3> */}
           <p>
-            Lorem ipsum dolor sit amet, consectetur elit, sed do eiusmod tempor
-            incididunt ut dolore magna aliqua. Ut enim ad minim nostrud
-            consequat.
+          Unlock Personalized Insights with Our Cutting-Edge RAG Model.
           </p>
-          <button className="get-started-button">Get Started</button>
+          <Link to={'/second_page'} >
+          <button className="get-started-button">RAG Model</button></Link>
+          <p>
+          Experience the Future with Our Advanced LLM Model Capable of Generating Human-like Text.
+          </p>
+          <Link to={'/'} >
+          <button onClick={tostload} className="get-started-button">LLM Model</button></Link>
         </div>
         <div className="image-section">
           <img
-            src="/path/to/chatbot-image.png" // Replace with your image path
+            src={firtimg} // Replace with your image path
             alt="Chatbot"
             className="chatbot-image"
           />
