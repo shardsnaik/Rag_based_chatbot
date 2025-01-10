@@ -8,7 +8,7 @@ import json
 from io import BytesIO
 from pydantic import BaseModel
 from dotenv import load_dotenv
-from langchain_openai import OpenAIEmbeddings
+from langchain_community.embeddings import OpenAIEmbeddings
 from langchain_community.vectorstores import Pinecone
 from pinecone import Pinecone as ps, ServerlessSpec
 from PyPDF2 import PdfReader
