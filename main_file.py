@@ -43,7 +43,7 @@ index = pc.Index(index_name)
 # Add CORS middleware to allow cross-origin requests
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://conversationaimodel.netlify.app/"],
+    allow_origins=["http://localhost:3000", "https://conversationaimodel.netlify.app"],
     allow_credentials=True,
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization"]

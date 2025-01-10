@@ -1,7 +1,7 @@
-# RAG-Based Chatbot with Cohere Command-xlarge-nightly Model
+# RAG-Based Chatbot with gpt-3.5-turbo Model
 # https://conversationaimodel.netlify.app/
 ## Project Overview
-This project implements a Retrieval-Augmented Generation (RAG) pipeline to build an intelligent chatbot capable of answering user queries based on a custom document database. The chatbot uses Pinecone for document retrieval and integrates Cohere’s `command-xlarge-nightly` model for generating natural language responses.
+This project implements a Retrieval-Augmented Generation (RAG) pipeline to build an intelligent chatbot capable of answering user queries based on a custom document database. The chatbot uses Pinecone for document retrieval and integrates Openai’s `gpt-3.5-turbo` model for generating natural language responses.
 
 The project leverages LangChain’s seamless integration with multiple components like retrievers and LLMs, ensuring an efficient and modular architecture.
 
@@ -38,7 +38,7 @@ The project leverages LangChain’s seamless integration with multiple component
 
 - **RAG Architecture**: Combines retrieval-based and generative approaches to improve the accuracy and relevance of responses.
 
-- **Cohere LLM Integration**: Uses Cohere's `command-xlarge-nightly` model for generating coherent and context-aware responses.
+- **OpenAI LLM Integration**: Uses Open AI's `gpt-3.5-turbo` model for generating coherent and context-aware responses.
 
 - **Pinecone Vector Store**: Handles vector storage and retrieval for documents, enabling efficient and scalable similarity searches.
 
@@ -56,10 +56,10 @@ The project leverages LangChain’s seamless integration with multiple component
    - Queries are embedded and matched with stored embeddings for relevant document retrieval.
 
 2. **Language Model**:
-   - The Cohere `command-xlarge-nightly` model generates natural language responses based on retrieved documents.
+   - The Open AI's `gpt-3.5-turbo` model generates natural language responses based on retrieved documents.
 
 3. **RAG Pipeline**:
-   - Combines retrieved document context with the generative capabilities of the Cohere model to produce accurate answers.
+   - Combines retrieved document context with the generative capabilities of the Open-Ai model to produce accurate answers.
 
 4. **API Endpoints**:
    - `/`: Basic connectivity test.
@@ -73,7 +73,7 @@ The project leverages LangChain’s seamless integration with multiple component
 
 - Python 3.9 or later
 - Pinecone account and API key
-- Cohere account and API key
+- Open AI account and API key
 - FastAPI
 
 ### Setup
@@ -92,7 +92,7 @@ The project leverages LangChain’s seamless integration with multiple component
 3. Set environment variables:
    - Create a `.env` file in the root directory with the following variables:
      ```env
-     COHERE_API_KEY=your_cohere_api_key
+     Open-AI_API_KEY=your_Open-AI_api_key
      PINECONE_API_KEY=your_pinecone_api_key
      PINECONE_ENVIRONMENT=your_pinecone_environment
      ```
@@ -137,10 +137,10 @@ The project leverages LangChain’s seamless integration with multiple component
 ### Embedding Model
 
 ```python
-from langchain.embeddings import CohereEmbeddings
+from langchain_community.embeddings import OpenAIEmbeddings
 
-COHERE_API_KEY = "your_cohere_api_key"
-embedding_model = CohereEmbeddings(model="embed-multilingual-v2.0", api_key=COHERE_API_KEY)
+Openai_API_KEY = "your_openai_api_key"
+embedding_model = OpenaiEmbeddings(model="embed-multilingual-v2.0", api_key=Openai_API_KEY)
 ```
 
 ### Retriever Initialization
@@ -158,12 +158,12 @@ retriever = Pinecone(
 ### LLM Initialization
 
 ```python
-from langchain.llms import Cohere
+from langchain.llms import ChatOpenAI
 
-llm = Cohere(
-    model="command-xlarge-nightly",
+llm = ChatOpenAI(
+    model="gpt-3.5-turbo",
     temperature=0.7,
-    api_key=COHERE_API_KEY
+    api_key=Openai_API_KEY
 )
 ```
 
@@ -183,11 +183,11 @@ rag_model = RetrievalQA(
 ## Known Issues
 
 1. **Deprecation Warning**:
-   - Some LangChain components like `Cohere` have been deprecated in newer versions.
-   - Use updated packages from `langchain-cohere` instead.
+   - Some LangChain components like `Openai` have been deprecated in newer versions.
+   - Use updated packages from `langchain-openai` instead.
 
 2. **Embedding Initialization**:
-   - Errors related to `user_agent` in `CohereEmbeddings` might occur due to library updates.
+   - Errors related to `user_agent` in `OpenAIEmbeddings` might occur due to library updates.
    - Check compatibility and update packages accordingly.
 
 3. **Pinecone Warnings**:
