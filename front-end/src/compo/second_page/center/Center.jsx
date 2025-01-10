@@ -80,7 +80,7 @@ const Center = () => {
       set_save_con_pdf([...save_con_pdf, newMessage])
       
       try {
-        const response = await fetch('http://127.0.0.1:8000/chat', {
+        const response = await fetch('https://rag-llm-chatbot.onrender.com/chat', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -123,7 +123,7 @@ const Center = () => {
         formData.append('file', file);
   
         try {
-          const res = await fetch('http://127.0.0.1:8000/upload/', {
+          const res = await fetch('https://rag-llm-chatbot.onrender.com/upload/', {
             method: 'POST',
             body: formData,
           });
