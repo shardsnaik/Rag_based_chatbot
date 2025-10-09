@@ -94,7 +94,8 @@ const App = () => {
   // API call for chat
   const callChatAPI = async (message) => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/chat', {
+      // const response = await fetch('http://127.0.0.1:8000/chat', {
+      const response = await fetch('https://rag-based-chatbot-1.onrender.com/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -212,7 +213,7 @@ const handleKeyPress = (event, mode) => {
   // Fetch chat history from /memory endpoint
   const fetchChatHistory = async () => {
     try {      // http://127.0.0.1:8000/memory
-      const response = await fetch(' http://127.0.0.1:8000/memory', {
+      const response = await fetch('https://rag-based-chatbot-1.onrender.com/memory', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
