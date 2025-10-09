@@ -5,7 +5,8 @@ langchain-core
 openai
 motor
 langchain
-
+uvicorn
+nest_asyncio
 
 # Above is only for without llama-cpp deploy 
 

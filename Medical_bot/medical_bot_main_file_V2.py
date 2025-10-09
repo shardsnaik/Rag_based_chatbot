@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, UploadFile, File, Request
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import os, asyncio, uuid, json
+import os, asyncio, uuid, json, uvicorn, nest_asyncio
 from datetime import datetime
 
 from contextlib import asynccontextmanager
@@ -449,8 +449,7 @@ async def health_checker(request: Request):
     }
 
 
-import uvicorn
-import nest_asyncio
+
 nest_asyncio.apply()
 
 if __name__ =='__main__':
