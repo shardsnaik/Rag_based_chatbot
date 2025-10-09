@@ -453,4 +453,7 @@ async def health_checker(request: Request):
 nest_asyncio.apply()
 
 if __name__ =='__main__':
-    uvicorn.run('medical_bot_main_file_V2:app', host='127.0.0.1', port=8000, reload= True)
+    # uvicorn.run('medical_bot_main_file_V2:app', host='127.0.0.1', port=8000, reload= True)
+    uvicorn.run('medical_bot_main_file_V2:app', host='0.0.0.0', port=8000, reload= True)
+# Render is unable to detect an open port on 0.0.0.0, 
+# 
