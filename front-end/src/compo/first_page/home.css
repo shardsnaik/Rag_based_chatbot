@@ -87,4 +87,31 @@
       transform: translateY(-15px);
     }
   }
+
+  @media screen and (max-width: 768px) {
+    .chatbot-content{
+      flex-direction: column-reverse;
+    }
+    .chatbot-header h1 {
+    margin-top: 8vh;    }
+    .text-section {
+      margin-top: 0;  }
+      .text-section h2 {
+        font-size: 2vh;
+      }
+
+      .text-section p {
+        font-size: 1.5vh;
+      }
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    }

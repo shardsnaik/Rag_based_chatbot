@@ -16,7 +16,7 @@ useEffect(() =>{
   const imginterval = setInterval(()=>{
     indx = (indx + 1 ) % img_robo.length
     secimg(img_robo[indx])
-  }, 120000) 
+  }, 10000) 
   return () => clearInterval(imginterval)
 },[])
 
@@ -37,7 +37,7 @@ const tostload =()=>{
     <div className="chatbot-container">
       <ToastContainer/>
       <div className="chatbot-header">
-        <h1>CONVERSATIONAL AI </h1>
+        <h1>Available AI Services</h1>
       </div>
       <div className="chatbot-content">
         <div className="text-section">
@@ -51,8 +51,16 @@ const tostload =()=>{
           <p>
           Experience the Future with Our Advanced LLM Model Capable of Generating Human-like Text.
           </p>
-          <Link to={'/'} >
+          <Link to={'/llm'} >
           <button onClick={tostload} className="get-started-button">LLM Model</button></Link>
+          <p>
+          Our Smart Medical doctor is here.
+          </p>
+          <Link to={'/med_page'} >
+          <button className="get-started-button">Medical Bot</button></Link>
+          <p>
+          Experience the medical report analysis, medical bot agent.
+          </p>
         </div>
         <div className="image-section">
           <img

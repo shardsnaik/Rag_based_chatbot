@@ -1,10 +1,5 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File
-from fastapi.responses import JSONResponse
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-import os
-import uvicorn
-import pandas as pd
-import json
 from io import BytesIO
 from pydantic import BaseModel
 from dotenv import load_dotenv
@@ -15,7 +10,11 @@ from PyPDF2 import PdfReader
 from fastapi.middleware.cors import CORSMiddleware
 from langchain.chains import RetrievalQA
 from langchain_community.chat_models import ChatOpenAI
-from langchain_huggingface import HuggingFaceEndpoint
+from huggingface_hub import InferenceClient
+
+from concurrent.futures import ThreadPoolExecutor
+import os, uvicorn, json, threading, asyncio
+import pandas as pd
 
 # Load environment variables from .env file
 load_dotenv()
@@ -26,6 +25,7 @@ app = FastAPI()
 # Set up Pinecone API keys and index
 pc = ps(api_key=os.getenv("Pinecone_api_key"))
 key = os.getenv("huggingface_api_key")
+huggingface_client = InferenceClient(token=key)
 
 # Define Pinecone index specifications
 spec = ServerlessSpec(cloud="aws", region="us-east-1")
@@ -51,6 +51,8 @@ app.add_middleware(
 
 # Initialize Hugging Face embeddings using Mistral-7B-Instruct-v0.3 model
 embedding_model = OpenAIEmbeddings(model="text-embedding-ada-002")
+
+executor = ThreadPoolExecutor(max_workers=4)
 
 # Function to extract text from PDF files
 def extract_text_from_pdfs(pdf_file):
@@ -135,13 +137,56 @@ async def upload_file(file: UploadFile = File(...)):
 retriever = Pinecone(index=index, embedding=embedding_model.embed_query, text_key='text')
 
 # Initialize the language model
-llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0.7)
+llm = ChatOpenAI(model="gpt-4.1-2025-04-14", temperature=0.7)
 
-# Set up the RAG model using the retriever
-rag_model = RetrievalQA.from_chain_type(llm=llm, retriever=retriever.as_retriever())
+# llm_model = Hu(repo_id='mistralai/Mistral-7B-Instruct-v0.3', max_length=256, temperature=0.4, huggingfacehub_api_token=key,
+# max_new_tokens=150,  # Limit token generation for faster responses
+# do_sample=True,
+# top_p=0.9,
+# repetition_penalty=1.1)
 
-# Initialize Hugging Face endpoint for Mistral-7B-Instruct-v0.3 model
-llm_model = HuggingFaceEndpoint(repo_id='mistralai/Mistral-7B-Instruct-v0.3', max_length=128, temperature=0.4, huggingfacehub_api_token=key)
+def query_mistral(prompt):
+    response = huggingface_client.text_generation(
+        prompt,
+        model="HuggingFaceH4/zephyr-7b-beta",  # ✅ replace with a compatible model
+        max_new_tokens=150,
+        temperature=0.4,
+        top_p=0.9,
+        repetition_penalty=1.1
+    )
+    return response
+
+# Cache for recent responses (simple in-memory cache)
+response_cache = {}
+cache_lock = threading.Lock()
+
+def get_cached_response(query: str):
+    """Get cached response if available"""
+    with cache_lock:
+        return response_cache.get(query.lower().strip())
+
+def cache_response(query: str, response: str):
+    """Cache response with size limit"""
+    with cache_lock:
+        # Keep cache size manageable
+        if len(response_cache) > 100:
+            # Remove oldest entries
+            keys_to_remove = list(response_cache.keys())[:20]
+            for key in keys_to_remove:
+                del response_cache[key]
+        response_cache[query.lower().strip()] = response
+
+# Initialize Pinecone retriever (lazy initialization)
+_retriever = None
+_rag_model = None
+
+def get_rag_model():
+    global _retriever, _rag_model
+    if _retriever is None:
+        _retriever = Pinecone(index=index, embedding=embedding_model.embed_query, text_key='text')
+        _rag_model = RetrievalQA.from_chain_type(llm=llm, retriever=_retriever.as_retriever())
+    return _rag_model
+
 
 # Route to test basic connection
 @app.get('/')
@@ -150,34 +195,59 @@ def homePage():
 
 # Route for QA chat
 @app.post('/chat')
-def qa_chatbot(req: QueryRequest):
+async def qa_chatbot(req: QueryRequest):
     ques = req.query
     if not ques:
         raise HTTPException(status_code=400, detail="Query failed")
     
     try:
-        answer = rag_model.run(ques)
-        return {"query": ques, "answer": answer}
+        # answer = rag_model.run(ques)
+        cached_response = get_cached_response(ques)
+        if cached_response:
+            return {"query": ques, "answer": cached_response, "cached": True}
+        loop = asyncio.get_event_loop()
+        rag_model = get_rag_model()
+        answer = await loop.run_in_executor(executor, rag_model.run, ques)
+
+        cache_response(ques, answer)
+        return {"query": ques, "answer": answer, "cached": False}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 # Chatbot without RAG, just using the LLM model
 @app.post('/llm_bot')
-def llm_bot(req: QueryRequest):
+async def llm_bot(req: QueryRequest):
     questions = req.query
     if not questions:
         raise HTTPException(status_code=400, detail="Query failed")
-    
+
     try:
-        answer = llm_model.invoke(questions)
-        return {"query": questions, "answer": answer}
+        cached_response = get_cached_response(questions)
+        if cached_response:
+            return {"query": questions, "answer": cached_response, "cached": True}
+        
+        loop = asyncio.get_event_loop()
+        answer = await loop.run_in_executor(executor, query_mistral, questions)
+        cache_response(questions, answer.content if hasattr(answer, 'content') else str(answer))
+        
+        return {"query": questions, "answer": answer.content if hasattr(answer, 'content') else str(answer), "cached": False}
+    
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# CORS preflight handler
-@app.options("/chat")
-def options_handler():
-    return JSONResponse(content={"message": "Options Request OK"}, status_code=200)
+
+@app.get('/health')
+def health_check():
+    return {"status": "healthy", "cache_size": len(response_cache)}
+
+# Clear cache endpoint
+@app.post('/clear_cache')
+def clear_cache():
+    global response_cache
+    with cache_lock:
+        response_cache.clear()
+    return {"message": "Cache cleared successfully"}
+
 
 # Run the FastAPI app
 if __name__ == "__main__":

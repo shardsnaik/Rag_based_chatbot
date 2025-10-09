@@ -78,9 +78,9 @@ const Center = () => {
       setMessages([...messages, newMessage]);
 
       set_save_con_pdf([...save_con_pdf, newMessage])
-      
+      // https://rag-llm-chatbot.onrender.com/chat
       try {
-        const response = await fetch('https://rag-llm-chatbot.onrender.com/chat', {
+        const response = await fetch('http://127.0.0.1:8000/chat', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -123,7 +123,7 @@ const Center = () => {
         formData.append('file', file);
   
         try {
-          const res = await fetch('https://rag-llm-chatbot.onrender.com/upload/', {
+          const res = await fetch('http://127.0.0.1:8000/upload', {
             method: 'POST',
             body: formData,
           });
@@ -192,10 +192,8 @@ return(
      ))}
    </div>
   </div>
-  
- </div>
+   </div>
  
-
 </div>
 <div id="ms-in-parent">
 <div className="message-input">

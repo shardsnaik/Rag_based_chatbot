@@ -1,0 +1,26 @@
+{
+  "session_id": "medical_session_20250903_004240_0cdb4c42",
+  "created_at": "2025-09-03T00:42:40.254656",
+  "messages": [
+    {
+      "id": 1,
+      "role": "Human",
+      "content": "string"
+    },
+    {
+      "id": 2,
+      "role": "Assistant",
+      "content": "Hello,Thanks for your query.I have reviewed your case and here is my advice:It looks like you are having symptoms of upper respiratory tract infection with cough as well as other respiratory symptoms. The best course of action would be to use a combination of medications such as:1)A decongestant in the form of an oral tablet or a nasal spray2)An antihistamine3)An antitussive (cough suppressant), such as dextromethorphan4) A cough syrup containing honey and other herbal medicines.I hope this information helps you further.Please don't hesitate to ask if I can be of additional help."
+    },
+    {
+      "id": 3,
+      "role": "Human",
+      "content": "h"
+    },
+    {
+      "id": 4,
+      "role": "Assistant",
+      "content": "Hello,Thanks for your query.I have reviewed your case and here is my advice:It looks like you are having symptoms of upper respiratory tract infection with cough as well as other respiratory symptoms. The best course of action would be to use a combination of medications such as:1)A decongestant in the form of an oral tablet or a nasal spray2)An antihistamine3)An antitussive (cough suppressant), such as dextromethorphan4) A cough syrup containing honey and other herbal medicines.I hope this information helps you further.Please don't hesitate to ask if I can be of additional help."
+    }
+  ]
+}

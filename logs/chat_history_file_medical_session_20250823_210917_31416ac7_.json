@@ -1,0 +1,16 @@
+{
+  "session_id": "medical_session_20250823_210917_31416ac7",
+  "created_at": "2025-08-23T21:09:17.297114",
+  "messages": [
+    {
+      "id": 1,
+      "role": "Human",
+      "content": "hi"
+    },
+    {
+      "id": 2,
+      "role": "Assistant",
+      "content": "Hi,Welcome to HCM.I have gone through your question in detail and can understand your concern. Please use the below query for more information: 1. You are feeling fever? 2. Do you have any other complaints like body ache or headache? 3. Have you done any blood tests as well as urine test? If yes then please provide me the reports so that I can suggest proper treatment plan for you. Take care and feel better."
+    }
+  ]
+}
