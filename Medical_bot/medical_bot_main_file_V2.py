@@ -350,7 +350,7 @@ app.add_middleware(
     CORSMiddleware, 
     allow_origins =[
         'http://localhost:3000',
-        'https://conversationaimodel.netlify.app/',
+        'https://conversationaimodel.netlify.app',
         'https://conversationaimodel.netlify.app/med_page'
     ],
     allow_credentials=True,
