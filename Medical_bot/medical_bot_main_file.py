@@ -35,7 +35,7 @@ class MedicalBot:
     def __init__(self):
         self.index = None
         # self.model_path = 'medgemma-4b-it-finnetunned-merged_new_for_cpu_q5_k_m.gguf'
-        self.model_path = os.getenv("MODEL_PATH")
+        self.model_path = '/app/models/medgemma-4b-it-finnetunned-merged_new_for_cpu_q5_k_m.gguf'
 
 # Change this to Linux-friendly relative path:
         # if os.path.exists("/opt/ml/model/medgemma-4b-it-finnetunned-merged_new_for_cpu_q5_k_m.gguf"):
